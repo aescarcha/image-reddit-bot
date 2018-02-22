@@ -2,6 +2,7 @@ import Snoowrap = require("snoowrap");
 import Snoostorm = require("snoostorm");
 import {Reddit} from "./services/Reddit";
 import {ImageProcessor} from "./services/ImageProcessor";
+import {IProcessedImage, ProcessedImage} from "./entities/ProcessedImage";
 
 require('dotenv').config();
 
@@ -25,9 +26,11 @@ const submissionStream = client.SubmissionStream({
 submissionStream.on('submission', async (post: Snoowrap.Submission) => {
     const imageSource: string = Reddit.getImageUrlFromPost(post);
     if (imageSource) {
-        console.log("Uploaded pic", imageSource);
-        let result: string = await ImageProcessor.generateImageDescription( imageSource );
-        console.log("Result:", result);
+        let result: ProcessedImage | undefined = await ImageProcessor.generateImageDescription( imageSource );
+        if (result && result.isAcceptable()) {
+            console.log("!!!!---------Acceptable Result!! for " + imageSource, result.generateText());
+
+        }
     }
 });
 

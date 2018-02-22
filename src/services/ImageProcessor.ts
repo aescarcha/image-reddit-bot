@@ -2,16 +2,17 @@ import * as fs from "fs";
 import {rp} from "request-promise";
 import fetch from "node-fetch";
 import {exec} from "node-exec-promise";
+import {IResult} from "../entities/Result";
+import {IProcessedImage, ProcessedImage} from "../entities/ProcessedImage";
 
 export class ImageProcessor {
-
-    public static async generateImageDescription( imageUrl: string ): Promise<string> {
-        let result: string = "";
+    public static async generateImageDescription( imageUrl: string ): Promise<ProcessedImage | undefined> {
         let localImage: string = await ImageProcessor.downloadAndSaveImage(imageUrl);
         if (localImage) {
-            result = await this.executeImageProcessor(localImage);
+            let bashResult: string = await this.executeImageProcessor(localImage);
+            return ImageProcessor.filterResult(bashResult);
         }
-        return result;
+        return;
     }
 
     private static async downloadAndSaveImage( imageUrl: string ): Promise<string> {
@@ -28,7 +29,61 @@ export class ImageProcessor {
                 });
         }
         return dstSrc;
+    }
 
+    private static filterResult( result: string ): ProcessedImage | undefined {
+        if (result.indexOf("webpage") > 0 || result.indexOf("comic") > 0 || result.indexOf("envelope") > 0) {
+            return; // Probably some kind meme or website screen capture
+        }
+
+        let im2TxtResults: IResult[] = ImageProcessor.getIm2txtResultsFromResult(result);
+        let inceptionResults: IResult[] = ImageProcessor.getInceptionResultsFromResult(result);
+
+        return new ProcessedImage({
+            im2txtResults: im2TxtResults,
+            inceptionResults: inceptionResults
+        });
+    }
+
+    private static getIm2txtResultsFromResult(result: string): IResult[] {
+        let datum: IResult[] = [];
+        let lines: string[] = result.split('\n');
+        lines.forEach((line: string) => {
+            if (line.indexOf("(p=") > 0) {
+                // Im2txt result
+                let probabilityResult = line.match(/p=([0-9].[0-9]*)/);
+                let textResult = line.match(/[0-9]\)\s([\w\s]*)/);
+
+                if( textResult && probabilityResult) {
+                    datum.push({
+                        text: "" + textResult!.pop(),
+                        probability: 100 * parseFloat( probabilityResult!.pop()!),
+                    });
+                }
+
+            }
+        });
+        return datum;
+    }
+
+    private static getInceptionResultsFromResult(result: string): IResult[] {
+        let datum: IResult[] = [];
+        let lines: string[] = result.split('\n');
+        lines.forEach((line: string) => {
+            if (line.indexOf("(score =") > 0) {
+                // inception result
+                let probabilityResult = line.match(/score = ([0-9].[0-9]*)/);
+                let textResult = line.match(/^([\w,\s]+)/);
+
+                if( textResult && probabilityResult) {
+                    datum.push({
+                        text: "" + textResult!.pop(),
+                        probability: 100 * parseFloat(probabilityResult!.pop()!),
+                    });
+                }
+            }
+        });
+        return datum;
     }
 
 
