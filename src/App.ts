@@ -1,8 +1,7 @@
 import Snoowrap = require("snoowrap");
 import Snoostorm = require("snoostorm");
-/**
- * Created by alvaroescarcha on 22/2/18.
- */
+import {Reddit} from "./services/Reddit";
+import {ImageProcessor} from "./services/ImageProcessor";
 
 require('dotenv').config();
 
@@ -19,14 +18,16 @@ const client = new Snoostorm(r);
 
 // Create a Snoostorm CommentStream with the specified options
 const submissionStream = client.SubmissionStream({
-    "subreddit": "SubredditSimulator",
-    "results": 50
+    "subreddit": process.env.SUBREDDIT,
+    "results": 2
 });
 
-submissionStream.on('submission', (post: Snoowrap.Submission) => {
+submissionStream.on('submission', async (post: Snoowrap.Submission) => {
     const imageSource: string = Reddit.getImageUrlFromPost(post);
     if (imageSource) {
-        console.log("uploaded pic", imageSource);
+        console.log("Uploaded pic", imageSource);
+        let result: string = await ImageProcessor.generateImageDescription( imageSource );
+        console.log("Result:", result);
     }
 });
 
