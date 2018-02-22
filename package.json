@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "dotenv": "^5.0.0",
+    "snoostorm": "0.0.5",
     "snoowrap": "^1.15.2",
     "typescript": "^2.7.2"
   },
