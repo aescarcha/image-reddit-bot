@@ -1,0 +1,21 @@
+{
+  "name": "redditBot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "snoowrap": "^1.15.2",
+    "typescript": "^2.7.2"
+  },
+  "devDependencies": {
+    "@types/snoowrap": "^1.14.3"
+  },
+  "scripts": {
+    "prestart": "node_modules/typescript/bin/tsc",
+    "compile": "node_modules/typescript/bin/tsc",
+    "start": "node build/App.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
