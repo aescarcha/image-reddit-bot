@@ -29,7 +29,7 @@ submissionStream.on('submission', async (post: Snoowrap.Submission) => {
         let result: ProcessedImage | undefined = await ImageProcessor.generateImageDescription( imageSource );
         if (result && result.isAcceptable()) {
             console.log("!!!!---------Acceptable Result!! for " + imageSource, result.generateText());
-
+	    post.reply(result.generateText());
         }
     }
 });
