@@ -32,7 +32,7 @@ export class ImageProcessor {
     }
 
     private static filterResult( result: string ): ProcessedImage | undefined {
-        if (result.indexOf("webpage") > 0 || result.indexOf("comic") > 0 || result.indexOf("envelope") > 0) {
+        if (result.indexOf("webpage") > 0 || result.indexOf("comic") > 0 || result.indexOf("website") > 0 || result.indexOf("envelope") > 0) {
             return; // Probably some kind meme or website screen capture
         }
 

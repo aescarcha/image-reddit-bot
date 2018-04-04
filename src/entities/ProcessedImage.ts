@@ -29,7 +29,7 @@ export class ProcessedImage implements IProcessedImage {
 
         this.inceptionResults.forEach( (res: IResult) => {
             if (res.probability > 40) {
-                im2txtOk = true;
+                inceptionOk = true;
             }
         });
 
@@ -42,10 +42,10 @@ export class ProcessedImage implements IProcessedImage {
             });
 
         if (sum > 60) {
-            im2txtOk = true;
+            inceptionOk = true;
         }
 
-        if (im2txtOk == !inceptionOk) {
+        if ( inceptionOk && !im2txtOk) {
             // Last try, check the phrases with the keywords
             let inceptionWords: string[] = this.getInceptionKeywords();
             let im2TxtPhrases: string[] = this.getIm2TxtPhrases();
@@ -70,7 +70,6 @@ export class ProcessedImage implements IProcessedImage {
 
                     splitKeywords.forEach( (singleKeyword: string) => {
                         if (phrase.indexOf(singleKeyword.trim()) > 0) {
-                            console.log(`Acceptable result because ${singleKeyword} matches ${phrase}`);
                             im2txtOk = true;
                         }
                     });
@@ -86,7 +85,7 @@ export class ProcessedImage implements IProcessedImage {
         let text: string = "Bip bop bip, I'm an image processing bot. ";
         let inceptionWords: string[] = this.getInceptionKeywords();
 
-        text += "I've found some keywords in this image " + inceptionWords.join(',');
+        text += "I've found some keywords in this image: " + inceptionWords.join(',');
 
         let im2TxtPhrases: string[] = this.getIm2TxtPhrases();
 
